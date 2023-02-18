@@ -13,8 +13,11 @@ cloudnotebook-web云笔记前台vue项目
 
 vue项目 npm run dev 运行时报错：webpack-dev-server --inline --progress --config build/webpack.dev.conf.js
 单独重装 webpack-dev-server模块
+
 npm uninstall webpack-dev-server
+
 npm install webpack-dev-server@2.11.5
+
 npm run dev
 
 vue打包后路径多了个/css/static导致一些css属性、字体文件等 效果不显示。
