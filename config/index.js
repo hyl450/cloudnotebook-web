@@ -10,11 +10,19 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      // '/cloudnote-api': {//代理标识，一般是每个接口前的相同部分
+      //   target: 'http://172.23.16.144:10008', // 这里写的是访问接口的域名和端口号
+      //   changeOrigin: true, // 允许跨域请求
+      //   pathRewrite: { // 重写路径，替换请求地址中的指定路径
+      //     '^/cloudnote-api': '/cloudnote-admin'
+      //   }
+      // }
+    },
 
     // Various Dev Server settings
+    // host: '172.23.16.144', // can be overwritten by process.env.HOST
     host: 'localhost', // can be overwritten by process.env.HOST
-    // host: '192.168.150.135', // can be overwritten by process.env.HOST
     port: 8087, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
