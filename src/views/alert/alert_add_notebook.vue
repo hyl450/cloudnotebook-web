@@ -46,6 +46,8 @@
           })
           this.$parent.alert('提示', '笔记创建成功');
           this.$parent.newNoteDialog = false;
+          // this.$parent.inputNoteTitle = this.newNoteFrom.cnNoteTitle;
+          // this.$parent.editor.setContent("");
         }).catch(() => {
           this.$parent.newNoteDialog = false;
           this.$parent.opacity_bg_show = false;//背景色隐藏
