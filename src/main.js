@@ -17,6 +17,7 @@ import './store/jquery.min.js'
 import '../static/js/umeditor.config.js'
 import '../static/js/umeditor.min.js'
 import '../static/js/lang/zh-cn.js'
+import '../static/js/theme-setup.js'
 
 // import "../static/css/login.css"
 // import "../static/css/login_ghost.css"

@@ -22,7 +22,6 @@
 
 <script>
   // import "@/views/css/icon.css"
-  import {getCookie} from '@/utils/support'
   export default {
     name: "deleteRollbackAlert",
     data(){
@@ -35,11 +34,8 @@
     methods:{
       deleteBackNote(){
         this.$store.dispatch('DeleteBackNote', this.delBackNoteFrom).then(()=>{
-          //重新加载笔记
-          this.$store.dispatch('LoadBookNotes', getCookie("cnNotebookId")).then(response => {
-            this.$parent.cnBookNotesList = response.data;
-          }).catch(() => {
-          })
+          //重新加载回收站笔记
+          this.$parent.rollBack();
           this.$parent.alert('提示', '删除笔记成功');
           this.$parent.rollbackDialog=false;
         }).catch(() => {

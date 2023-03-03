@@ -60,7 +60,7 @@ export function saveNote(note) {
     data:note
   })
 }
-//删除笔记
+//将回收站笔记彻底删除
 export function deleteBackNote(note) {
   return request({
     url:'/notebook/delbacknote.do',
@@ -68,6 +68,29 @@ export function deleteBackNote(note) {
     data:note
   })
 }
+//将笔记移到回收站
+export function recyclenote(note) {
+  return request({
+    url:'/notebook/recyclenote.do',
+    method:'post',
+    data:note
+  })
+}
+export function loadbacknotes(userInfo) {
+  return request({
+    url:'/notebook/loadbacknotes.do',
+    method:'post',
+    data:userInfo
+  })
+}
+export function replayNote(noteInfo) {
+  return request({
+    url:'/notebook/replayNote.do',
+    method:'post',
+    data:noteInfo
+  })
+}
+
 
 
 

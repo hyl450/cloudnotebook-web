@@ -1,7 +1,7 @@
 import { login, logout, getInfo,register,updatePassword} from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import {setSupport,getSupport,setCookie,getCookie} from '@/utils/support'
-import {loadUserBooks,loadBookNotes,loadNote,newbook,deleteBook,addNote,saveNote,deleteBackNote} from '@/api/notebook'
+import {loadUserBooks,loadBookNotes,loadNote,newbook,deleteBook,addNote,saveNote,deleteBackNote,recyclenote,loadbacknotes,replayNote} from '@/api/notebook'
 
 const user = {
   state: {
@@ -148,7 +148,7 @@ const user = {
       })
     },
 
-    //删除笔记
+    //将回收站笔记彻底删除
     DeleteBackNote({commit}, note) {
       return new Promise((resolve, reject) => {
         deleteBackNote(note).then(response => {
@@ -160,6 +160,46 @@ const user = {
         })
       })
     },
+
+    //将笔记删除到回收站
+    RecycleNote({commit}, note) {
+      return new Promise((resolve, reject) => {
+        recyclenote(note).then(response => {
+          const data = response.data
+          resolve(response)
+          console.log(data);
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    //查询回收站笔记
+    LoadBackNotes({commit}, userInfo) {
+      return new Promise((resolve, reject) => {
+        loadbacknotes(userInfo).then(response => {
+          const data = response.data
+          resolve(response)
+          console.log(data);
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    //还原回收站笔记
+    ReplayNote({commit}, noteInfo) {
+      return new Promise((resolve, reject) => {
+        replayNote(noteInfo).then(response => {
+          const data = response.data
+          resolve(response)
+          console.log(data);
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
 
     // 获取用户信息
     GetInfo({ commit, state }) {

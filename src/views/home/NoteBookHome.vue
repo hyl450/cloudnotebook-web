@@ -88,7 +88,7 @@
           </div>
         </aside>
         <div class="row clear_margin">
-          <div class="col-xs-4 click" id='rollback_button' title='回收站'><i class='fa fa-trash-o' style='font-size:20px;line-height:31px;'></i></div>
+          <div class="col-xs-4 click" id='rollback_button' title='回收站' @click="rollBack"><i class='fa fa-trash-o' style='font-size:20px;line-height:31px;'></i></div>
           <div class="col-xs-4 click" id='like_button' title='收藏笔记本'><i class='fa fa-star' style='font-size:20px;line-height:31px;'></i></div>
           <div class="col-xs-4 click" id='action_button' title='参加活动笔记'><i class='fa fa-users' style='font-size:20px;line-height:30px;'></i></div>
         </div>
@@ -141,7 +141,16 @@
             <div class="chat-contact">
               <div class="contact-body">
                 <ul id="back_note_ul" class="contacts-list">
-                  <li class="disable"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i> 虚假回收站笔记<button type="button" class="btn btn-default btn-xs btn_position btn_delete"><i class="fa fa-times"></i></button><button type="button" class="btn btn-default btn-xs btn_position_2 btn_replay"><i class="fa fa-reply"></i></button></a></li>
+                  <li class="disable" v-for="(backbook, index) in backNotesList" :key="index">
+                    <a v-bind:class="{checked:index==backbookcurrent}" @click="loadBackNote(index)"><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i>{{ backbook.cnNoteTitle }}
+                      <button type="button" class="btn btn-default btn-xs btn_position btn_delete" @click="delBackNote">
+                        <i class="fa fa-times"></i>
+                      </button>
+                      <button type="button" class="btn btn-default btn-xs btn_position_2 btn_replay" @click="replayNote(index)">
+                        <i class="fa fa-reply"></i>
+                      </button>
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -271,7 +280,9 @@
     <commonMsgAlert title="提示" v-if="commonMsgDialog" ref="commonMsgAlert"/>
     <deleteNotebookAlert title="删除笔记本" v-if="deleteBookDialog" ref="deleteNotebookAlert"/>
     <newNoteAlert title="新建笔记" v-if="newNoteDialog" ref="newNoteAlert"/>
-    <deleteRollbackAlert title="新建笔记" v-if="rollbackDialog" ref="deleteRollbackAlert"/>
+    <deleteRollbackAlert title="展示删除到回收站弹框" v-if="rollbackDialog" ref="deleteRollbackAlert"/>
+    <deleteNoteAlert title="展示彻底删除回收站笔记弹框" v-if="recycleNoteDialog" ref="deleteNoteAlert"/>
+    <replayNoteAlert title="展示回收站笔记恢复弹框" v-if="replayNoteDialog" ref="replayNoteAlert"/>
     <footer>
       <p>&copy; 2023 vue studying</p>
       <div style='position:absolute;top:5PX;height:30px;right:20px;line-height:26px;border:1px solid #0E7D76;display:none;background:#fff'>
@@ -284,6 +295,8 @@
 <script>
   //这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
   //例如：import 《组件名称》 from '《组件路径》';
+  import '../../../static/css/icon.css'
+  import '../../../static/css/main.css'
   import stilearn_logo from '../../../static/images/dummy/8986f28e.stilearn-logo.png'
   import {setCookie,getCookie} from '@/utils/support'
   // 引用组件
@@ -292,6 +305,8 @@
   import deleteNotebookAlert from "../alert/alert_delete_notebook"
   import newNoteAlert from "../alert/alert_add_notebook"
   import deleteRollbackAlert from "../alert/alert_delete_rollback"
+  import deleteNoteAlert from "../alert/alert_delete_note"
+  import replayNoteAlert from "../alert/alert_replay_note"
 
   import { mapGetters } from 'vuex'
 
@@ -302,7 +317,9 @@
       commonMsgAlert,
       deleteNotebookAlert,
       newNoteAlert,
-      deleteRollbackAlert
+      deleteRollbackAlert,
+      deleteNoteAlert,
+      replayNoteAlert
     },
     computed: {
       ...mapGetters([
@@ -315,8 +332,16 @@
         stilearn_logo,
         notecurrent:-1,
         bookcurrent:-1,
+        //回收站选中笔记序号
+        backbookcurrent:-1,
         cnNotebookList:[],
         cnBookNotesList:[],
+        //回收站笔记
+        backNotesList:[],
+        //回收站预览笔记标题
+        noputNoteTitle:'',
+        //回收站预览笔记内容
+        lookNoteBody:'',
         editor: null,
         //笔记标题
         inputNoteTitle:'',
@@ -328,6 +353,8 @@
         deleteBookDialog:false,
         newNoteDialog:false,
         rollbackDialog:false,
+        recycleNoteDialog:false,
+        replayNoteDialog:false,
         //笔记菜单
         noteMenuShow:false,
         userBtnShow:false,
@@ -378,6 +405,11 @@
       },
       //点击笔记本显示笔记列表(动态绑定)
       loadBookNotes(index) {
+        // this.recycleNoteDialog = false;
+        this.changeNoteListDiv(2);
+        $("#pc_part_3").show();//切换编辑笔记
+        $("#pc_part_5").hide();//隐藏预览笔记
+
         this.notecurrent = index;
         var noteBookId = this.cnNotebookList[index].cnNotebookId;
         setCookie("cnNotebookId", noteBookId);
@@ -483,12 +515,44 @@
         }).catch(() => {
         });
       },
-      //删除笔记
+      //删除笔记到回收站弹框
       delNote(){
+        this.recycleNoteDialog = true;
+        this.opacity_bg_show = true;//背景色div显示
+        this.$nextTick(() => {
+          this.$refs.deleteNoteAlert.recycleNoteFrom.cnNoteId=this.selectNoteId;
+        })
+      },
+      //预览回收站笔记内容
+      loadBackNote(index){
+        console.log("loadBackNote_index:"+index);
+        this.backbookcurrent = index;
+        var cnNoteId = this.backNotesList[index].cnNoteId;
+        this.selectNoteId = cnNoteId;
+        console.log("loadBackNote_cnNoteId:"+cnNoteId);
+        console.log("loadBackNote_backNotesList:"+this.backNotesList[index]);
+        setCookie("cnNoteId", cnNoteId);
+        //预览笔记标题
+        $("#noput_note_title").html(this.backNotesList[index].cnNoteTitle);
+        //预览笔记内容
+        $("#look_note_body").html(this.backNotesList[index].cnNoteBody);
+      },
+      //回收站彻底删除弹框
+      delBackNote() {
         this.rollbackDialog = true;
         this.opacity_bg_show = true;//背景色div显示
         this.$nextTick(() => {
           this.$refs.deleteRollbackAlert.delBackNoteFrom.cnNoteId=this.selectNoteId;
+        })
+      },
+      //回收站笔记还原弹框
+      replayNote(index) {
+        this.replayNoteDialog = true;
+        this.opacity_bg_show = true;//背景色div显示
+        this.$nextTick(() => {
+          this.$refs.replayNoteAlert.replayNotebookList=this.cnNotebookList;
+          this.$refs.replayNoteAlert.defaultBookId = this.backNotesList[index].cnNotebookId;
+          this.$refs.replayNoteAlert.replayForm.cnNoteId = this.backNotesList[index].cnNoteId;
         })
       },
       showDropDown(){
@@ -551,6 +615,24 @@
         }).catch(() => {
         })
         this.$router.push({path: '/'});
+      },
+      //回收站
+      rollBack() {
+        $("#noput_note_title").html("");
+        $("#look_note_body").html("");
+        $("#book_ul a").removeClass("checked");
+        this.changeNoteListDiv(4);
+        $("#pc_part_5").show();//切换预览笔记
+        $("#pc_part_3").hide();//隐藏编辑笔记
+        this.loginOutFrom.cnUserId = getCookie("userId");
+        this.$store.dispatch('LoadBackNotes', this.loginOutFrom).then(response => {
+          this.backNotesList = response.data;
+        }).catch(() => {
+        })
+      },
+      changeNoteListDiv(i) {
+        $(".col-xs-3:not('#button_save')").hide();
+        $("#pc_part_"+i).show();
       }
     },
     //生命周期 - 创建完成（可以访问当前this实例）
