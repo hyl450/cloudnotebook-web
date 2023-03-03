@@ -430,6 +430,9 @@
         }).catch(() => {
         })
         //点击其他笔记本时清空编辑区内容
+        this.clearUeditor();
+      },
+      clearUeditor() {
         this.inputNoteTitle = '';
         this.saveNoteFrom.cnNoteId = '';
         this.editor.setContent("");
@@ -536,6 +539,11 @@
         $("#noput_note_title").html(this.backNotesList[index].cnNoteTitle);
         //预览笔记内容
         $("#look_note_body").html(this.backNotesList[index].cnNoteBody);
+      },
+      clearBackNotePage() {
+        $("#noput_note_title").html("");
+        //预览笔记内容
+        $("#look_note_body").html("");
       },
       //回收站彻底删除弹框
       delBackNote() {

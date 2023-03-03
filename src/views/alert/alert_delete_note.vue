@@ -35,6 +35,8 @@
     methods:{
       recycleNote() {
         this.$store.dispatch('RecycleNote', this.recycleNoteFrom).then(()=>{
+          //清空编辑器
+          this.$parent.clearUeditor();
           //重新加载笔记
           this.$store.dispatch('LoadBookNotes', getCookie("cnNotebookId")).then(response => {
             this.$parent.cnBookNotesList = response.data;

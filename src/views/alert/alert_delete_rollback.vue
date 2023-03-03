@@ -34,6 +34,7 @@
     methods:{
       deleteBackNote(){
         this.$store.dispatch('DeleteBackNote', this.delBackNoteFrom).then(()=>{
+          this.$parent.clearBackNotePage();
           //重新加载回收站笔记
           this.$parent.rollBack();
           this.$parent.alert('提示', '删除笔记成功');
