@@ -90,6 +90,20 @@ export function replayNote(noteInfo) {
     data:noteInfo
   })
 }
+export function upNoteTypeId(noteInfo) {
+  return request({
+    url:'/notebook/upNoteTypeId.do',
+    method:'post',
+    data:noteInfo
+  })
+}
+export function loadLikeNotes(userInfo) {
+  return request({
+    url:'/notebook/loadLikeNotes.do',
+    method:'post',
+    data:userInfo
+  })
+}
 
 
 

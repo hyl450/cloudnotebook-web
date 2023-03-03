@@ -7,25 +7,11 @@
 <!--          <img :src="stilearnlogo" class="brand-logo" alt="Stilearn Admin Sample Logo">-->
         </a>
       </div>
-<!--      <div class="header-profile">-->
-<!--        <div class="profile-nav">-->
-<!--          <span class="profile-username"></span>-->
-<!--          <a  class="dropdown-toggle" data-toggle="dropdown" @click="dropDownBtn">-->
-<!--            <span class="fa fa-angle-down"></span>-->
-<!--          </a>-->
-<!--          <ul class="dropdown-menu animated flipInX pull-right" role="menu">-->
-<!--            <li><a href="Change_password.html"><i class="fa fa-user"></i> 修改密码</a></li>-->
-<!--            <li class="divider"></li>-->
-<!--            <li><a id="logout" href="log_in.html" ><i class="fa fa-sign-out"></i> 退出登录</a></li>-->
-<!--          </ul>-->
-<!--        </div>-->
-<!--      </div>-->
 
       <el-menu class="navbar" mode="horizontal">
 <!--        <hamburger class="hamburger-container" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>-->
         <el-dropdown class="avatar-container" trigger="click">
           <div class="avatar-wrapper">
-<!--            <img class="user-avatar" :src="avatar">-->
             <i class="el-icon-caret-bottom"></i>
           </div>
           <el-dropdown-menu class="user-dropdown" slot="dropdown">
@@ -89,7 +75,7 @@
         </aside>
         <div class="row clear_margin">
           <div class="col-xs-4 click" id='rollback_button' title='回收站' @click="rollBack"><i class='fa fa-trash-o' style='font-size:20px;line-height:31px;'></i></div>
-          <div class="col-xs-4 click" id='like_button' title='收藏笔记本'><i class='fa fa-star' style='font-size:20px;line-height:31px;'></i></div>
+          <div class="col-xs-4 click" id='like_button' title='收藏笔记本' @click="likeNoteBook"><i class='fa fa-star' style='font-size:20px;line-height:31px;'></i></div>
           <div class="col-xs-4 click" id='action_button' title='参加活动笔记'><i class='fa fa-users' style='font-size:20px;line-height:30px;'></i></div>
         </div>
       </div>
@@ -109,7 +95,7 @@
                     <a v-bind:class="{checked:index==bookcurrent}" @click="loadNote(index)" >
                       <i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i>
                       {{book.cnNoteTitle}}
-                      <i class="fa fa-star" style="font-size:20px;line-height:31px;"></i>
+                      <i :class="book.cnNoteTypeId == '129' ? 'fa fa-star': 'fa fa-star-o'" @click="likeNoteBtn(index)" class="fa fa-star" style="font-size:20px;line-height:31px;"></i>
                       <button type="button" class="btn btn-default btn-xs btn_position btn_slide_down"
                               @mouseenter="onMouseOver" @mouseleave="onMouseOut"
                               @click="btnSlideDown">
@@ -186,7 +172,12 @@
             <div class="chat-contact">
               <div class="contact-body">
                 <ul class="contacts-list" id="collect_ul">
-                  <li class="idle"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i> switch多分支结构<button type="button" class="btn btn-default btn-xs btn_position btn_delete"><i class="fa fa-times"></i></button></a></li>
+                  <li class="idle" v-for="(likeNote, index) in likeNotesList" :key="index">
+                    <a v-bind:class="{checked:index==likenotecurrent}" @click="loadLikeNote(index)"><i class="fa fa-star" title="online" rel="tooltip-bottom"></i> {{likeNote.cnNoteTitle}}
+                    <button type="button" class="btn btn-default btn-xs btn_position btn_delete" @click="noLikeNoteBtn(index)">
+                      <i class="fa fa-times"></i>
+                    </button>
+                  </a></li>
                 </ul>
               </div>
             </div>
@@ -334,10 +325,13 @@
         bookcurrent:-1,
         //回收站选中笔记序号
         backbookcurrent:-1,
+        likenotecurrent:-1,
         cnNotebookList:[],
         cnBookNotesList:[],
         //回收站笔记
         backNotesList:[],
+        //收藏笔记列表
+        likeNotesList:[],
         //回收站预览笔记标题
         noputNoteTitle:'',
         //回收站预览笔记内容
@@ -365,6 +359,10 @@
         },
         loginOutFrom:{
           cnUserId:''
+        },
+        likeNoteFrom:{
+          cnNoteId:'',
+          cnNoteTypeId:''
         }
       };
     },
@@ -638,9 +636,64 @@
         }).catch(() => {
         })
       },
+      //点击收藏笔记本按钮
+      likeNoteBook() {
+        $("#noput_note_title").html("");
+        $("#look_note_body").html("");
+        $("#book_ul a").removeClass("checked");
+        this.changeNoteListDiv(7);
+        $("#pc_part_5").show();//切换预览笔记
+        $("#pc_part_3").hide();//隐藏编辑笔记
+        this.loginOutFrom.cnUserId = getCookie("userId");
+        this.$store.dispatch('LoadLikeNotes', this.loginOutFrom).then(response => {
+          this.likeNotesList = response.data;
+        }).catch(() => {
+        })
+      },
       changeNoteListDiv(i) {
         $(".col-xs-3:not('#button_save')").hide();
         $("#pc_part_"+i).show();
+      },
+      //点击收藏五角星图标
+      likeNoteBtn(index){
+        this.bookcurrent = index;
+        var cnNoteId = this.cnBookNotesList[index].cnNoteId;
+        var cnNoteTypeId = this.cnBookNotesList[index].cnNoteTypeId;
+        this.likeNoteFrom.cnNoteId = cnNoteId;
+        //129-收藏笔记 1-普通笔记
+        this.likeNoteFrom.cnNoteTypeId = (cnNoteTypeId == "129" ? "1" : "129");
+        this.$store.dispatch('UpNoteTypeId', this.likeNoteFrom).then(()=>{
+          //重新加载笔记
+          this.$store.dispatch('LoadBookNotes', getCookie("cnNotebookId")).then(response => {
+            this.cnBookNotesList = response.data;
+          }).catch(() => {
+          })
+        }).catch(() => {
+        });
+      },
+      loadLikeNote(index){
+        this.likenotecurrent = index;
+        var cnNoteId = this.likeNotesList[index].cnNoteId;
+        this.selectNoteId = cnNoteId;
+        console.log("loadBackNote_cnNoteId:"+cnNoteId);
+        console.log("loadBackNote_backNotesList:"+this.likeNotesList[index]);
+        setCookie("cnNoteId", cnNoteId);
+        //预览笔记标题
+        $("#noput_note_title").html(this.likeNotesList[index].cnNoteTitle);
+        //预览笔记内容
+        $("#look_note_body").html(this.likeNotesList[index].cnNoteBody);
+      },
+      noLikeNoteBtn(index){
+        this.likenotecurrent = index;
+        var cnNoteId = this.likeNotesList[index].cnNoteId;
+        var cnNoteTypeId = this.likeNotesList[index].cnNoteTypeId;
+        this.likeNoteFrom.cnNoteId = cnNoteId;
+        //129-收藏笔记 1-普通笔记
+        this.likeNoteFrom.cnNoteTypeId = (cnNoteTypeId == "129" ? "1" : "129");
+        this.$store.dispatch('UpNoteTypeId', this.likeNoteFrom).then(()=>{
+            this.likeNoteBook();
+        }).catch(() => {
+        });
       }
     },
     //生命周期 - 创建完成（可以访问当前this实例）
