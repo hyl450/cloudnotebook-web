@@ -33,7 +33,7 @@
       <form class="form-inline" onsubmit="return false;">
         <button type="button" class="btn btn-default btn-expand-search"><i class="fa fa-search"></i></button>
         <div class="toggle-search">
-          <input type="text" class="form-control" placeholder="搜索笔记" id='search_note'>
+          <input type="text" class="form-control" v-model="searchNote" @keyup.enter="toSearchNotes()" placeholder="搜索笔记" id='search_note'>
           <button type="button" class="btn btn-default btn-collapse-search"><i class="fa fa-times"></i></button>
         </div>
       </form>
@@ -154,6 +154,11 @@
             <div class="chat-contact">
               <div class="contact-body">
                 <ul id="share_ul" class="contacts-list">
+                  <li class="disable" v-for="(searchNote, index) in searchNotesList" :key="index">
+                    <a v-bind:class="{checked:index==searchnotecurrent}" @click="loadSearchNote(index)"><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i>
+                    {{searchNote.cnNoteTitle}}
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -326,16 +331,21 @@
         //回收站选中笔记序号
         backbookcurrent:-1,
         likenotecurrent:-1,
+        searchnotecurrent:-1,
         cnNotebookList:[],
         cnBookNotesList:[],
         //回收站笔记
         backNotesList:[],
         //收藏笔记列表
         likeNotesList:[],
+        //搜索笔记列表
+        searchNotesList:[],
         //回收站预览笔记标题
         noputNoteTitle:'',
         //回收站预览笔记内容
         lookNoteBody:'',
+        //搜索关键词
+        searchNote:'',
         editor: null,
         //笔记标题
         inputNoteTitle:'',
@@ -363,6 +373,10 @@
         likeNoteFrom:{
           cnNoteId:'',
           cnNoteTypeId:''
+        },
+        searchNoteFrom:{
+          cnNoteTitle:'',
+          cnUserId:''
         }
       };
     },
@@ -683,6 +697,7 @@
         //预览笔记内容
         $("#look_note_body").html(this.likeNotesList[index].cnNoteBody);
       },
+      //取消收藏
       noLikeNoteBtn(index){
         this.likenotecurrent = index;
         var cnNoteId = this.likeNotesList[index].cnNoteId;
@@ -694,6 +709,39 @@
             this.likeNoteBook();
         }).catch(() => {
         });
+      },
+      //搜索笔记
+      toSearchNotes() {
+        if(this.searchNote == '') {
+          this.opacity_bg_show = true;//背景色div显示
+          this.alert('提示', '请输入笔记标题关键字')
+          return;
+        }
+        //清空预览笔记区
+        $("#noput_note_title").html("");
+        //在打开分享笔记时，取消选中的笔记本
+        $("#book_ul li a.checked").removeClass("checked");
+        $("#look_note_body").html("");
+        this.searchNoteFrom.cnNoteTitle=this.searchNote;
+        this.searchNoteFrom.cnUserId=getCookie("userId");
+        this.$store.dispatch('ToSearchNotes', this.searchNoteFrom).then(response=>{
+          this.changeNoteListDiv(6);
+          $("#pc_part_3").hide();//隐藏编辑笔记
+          $("#pc_part_5").show();//切换预览笔记
+          $("#share_ul").empty();
+          this.searchNotesList = response.data;
+        }).catch(() => {
+        });
+      },
+      //加载搜索的笔记内容
+      loadSearchNote(index) {
+        this.searchnotecurrent = index;
+        var cnNoteId = this.searchNotesList[index].cnNoteId;
+        this.selectNoteId = cnNoteId;
+        //预览笔记标题
+        $("#noput_note_title").html(this.searchNotesList[index].cnNoteTitle);
+        //预览笔记内容
+        $("#look_note_body").html(this.searchNotesList[index].cnNoteBody);
       }
     },
     //生命周期 - 创建完成（可以访问当前this实例）
@@ -724,10 +772,6 @@
 <style rel="stylesheet/scss" lang="scss" scoped>
   .navbar {
     position: relative;
-    /*top:0px;*/
-    /*right: 0px;*/
-    /*height: 60px;*/
-    /*width: 30px;*/
     float: right;
     width: 42px;
     height: 60px;
@@ -735,12 +779,6 @@
     background: #232332;
     border-color:#232332;
     border-radius: 0px !important;
-    /*.hamburger-container {*/
-    /*  line-height: 58px;*/
-    /*  height: 50px;*/
-    /*  float: left;*/
-    /*  padding: 0 10px;*/
-    /*}*/
     .screenfull {
       /*position: absolute;*/
       right: 90px;

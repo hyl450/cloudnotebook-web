@@ -104,6 +104,13 @@ export function loadLikeNotes(userInfo) {
     data:userInfo
   })
 }
+export function toSearchNotes(noteInfo) {
+  return request({
+    url:'/notebook/toSearchNotes.do',
+    method:'post',
+    data:noteInfo
+  })
+}
 
 
 

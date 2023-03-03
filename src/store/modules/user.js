@@ -1,7 +1,7 @@
 import { login, logout, getInfo,register,updatePassword} from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import {setSupport,getSupport,setCookie,getCookie} from '@/utils/support'
-import {loadUserBooks,loadBookNotes,loadNote,newbook,deleteBook,addNote,saveNote,deleteBackNote,recyclenote,loadbacknotes,replayNote,upNoteTypeId,loadLikeNotes} from '@/api/notebook'
+import {loadUserBooks,loadBookNotes,loadNote,newbook,deleteBook,addNote,saveNote,deleteBackNote,recyclenote,loadbacknotes,replayNote,upNoteTypeId,loadLikeNotes,toSearchNotes} from '@/api/notebook'
 
 const user = {
   state: {
@@ -214,6 +214,18 @@ const user = {
     LoadLikeNotes({commit}, userInfo) {
       return new Promise((resolve, reject) => {
         loadLikeNotes(userInfo).then(response => {
+          const data = response.data
+          resolve(response)
+          console.log(data);
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    ToSearchNotes({commit}, noteInfo) {
+      return new Promise((resolve, reject) => {
+        toSearchNotes(noteInfo).then(response => {
           const data = response.data
           resolve(response)
           console.log(data);
