@@ -26,7 +26,8 @@
     data() {
       return {
         caption:'',
-        msg:''
+        msg:'',
+        flag:false
       }
     },
 
@@ -34,12 +35,16 @@
       close() {
         this.$emit('close');
         this.$parent.commonMsgDialog=false;
-        this.$parent.opacity_bg_show=false;//背景色隐藏
+        if(!this.flag) {
+          this.$parent.opacity_bg_show = false;//背景色隐藏
+        }
       },
       confirmClick() {
         this.$emit('close');
         this.$parent.commonMsgDialog=false;
-        this.$parent.opacity_bg_show=false;//背景色隐藏
+        if(!this.flag) {
+          this.$parent.opacity_bg_show = false;//背景色隐藏
+        }
       }
     }
   }

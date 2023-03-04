@@ -271,7 +271,9 @@ const user = {
       console.log("userInfo:"+userInfo);
       return new Promise((resolve, reject) => {
         updatePassword(userInfo).then(response => {
-          resolve()
+          const data = response.data
+          resolve(response)
+          console.log(data);
         }).catch(error => {
           reject(error)
         })

@@ -33,7 +33,7 @@
       <form class="form-inline" onsubmit="return false;">
         <button type="button" class="btn btn-default btn-expand-search"><i class="fa fa-search"></i></button>
         <div class="toggle-search">
-          <input type="text" class="form-control" v-model="searchNote" @keyup.enter="toSearchNotes()" placeholder="搜索笔记" id='search_note'>
+          <input type="text" class="form-control" v-model="searchInfo" @keyup.enter="toSearchNotes()" placeholder="'T>'开头搜索笔记标题,'B>'开头搜索笔记内容" id='search_note'>
           <button type="button" class="btn btn-default btn-collapse-search"><i class="fa fa-times"></i></button>
         </div>
       </form>
@@ -271,7 +271,7 @@
       <!-- 预览笔记 -->
     </div>
     <!-- 使用组件-->
-<!--    <chgpwdDialog title="密码修改" v-if="openDialog" ref="chgpwdDialog"/>-->
+    <changePwdAlert title="密码修改" v-if="chgPwdDialog" ref="changePwdAlert"/>
     <noteBookAlert title="新建笔记本" v-if="bookOpenDialog" ref="noteBookAlert"/>
     <commonMsgAlert title="提示" v-if="commonMsgDialog" ref="commonMsgAlert"/>
     <deleteNotebookAlert title="删除笔记本" v-if="deleteBookDialog" ref="deleteNotebookAlert"/>
@@ -303,6 +303,7 @@
   import deleteRollbackAlert from "../alert/alert_delete_rollback"
   import deleteNoteAlert from "../alert/alert_delete_note"
   import replayNoteAlert from "../alert/alert_replay_note"
+  import changePwdAlert from "../alert/alert_change_pwd"
 
   import { mapGetters } from 'vuex'
 
@@ -315,7 +316,8 @@
       newNoteAlert,
       deleteRollbackAlert,
       deleteNoteAlert,
-      replayNoteAlert
+      replayNoteAlert,
+      changePwdAlert
     },
     computed: {
       ...mapGetters([
@@ -345,7 +347,7 @@
         //回收站预览笔记内容
         lookNoteBody:'',
         //搜索关键词
-        searchNote:'',
+        searchInfo:'',
         editor: null,
         //笔记标题
         inputNoteTitle:'',
@@ -359,6 +361,7 @@
         rollbackDialog:false,
         recycleNoteDialog:false,
         replayNoteDialog:false,
+        chgPwdDialog:false,
         //笔记菜单
         noteMenuShow:false,
         userBtnShow:false,
@@ -376,7 +379,8 @@
         },
         searchNoteFrom:{
           cnNoteTitle:'',
-          cnUserId:''
+          cnUserId:'',
+          cnNoteBody:''
         }
       };
     },
@@ -492,11 +496,12 @@
         })
       },
       //公共提示框
-      alert(caption, msg) {
+      alert(caption, msg, flag) {
         this.commonMsgDialog = true;
         this.$nextTick(() => {
           this.$refs.commonMsgAlert.caption=caption;
           this.$refs.commonMsgAlert.msg=msg;
+          this.$refs.commonMsgAlert.flag=flag;
         });
       },
       //新建笔记
@@ -623,7 +628,11 @@
       },
       changePwd(){
         this.opacity_bg_show = true;//背景色div显示
-        this.alert('提示', '暂不支持密码修改');
+        this.chgPwdDialog = true;
+        // this.alert('提示', '暂不支持密码修改');
+        this.$nextTick(() => {
+          this.$refs.changePwdAlert.chgPwdForm.cnUserName = getCookie("username");
+        });
       },
       logout(){
         this.loginOutFrom.cnUserId = getCookie("userId");
@@ -712,9 +721,14 @@
       },
       //搜索笔记
       toSearchNotes() {
-        if(this.searchNote == '') {
+        if(this.searchInfo == '') {
           this.opacity_bg_show = true;//背景色div显示
-          this.alert('提示', '请输入笔记标题关键字')
+          this.alert('提示', '请输入笔记标题或笔记内容关键字')
+          return;
+        }
+        if(this.searchInfo.indexOf('B>') != 0 && this.searchInfo.indexOf('T>') != 0) {
+          this.opacity_bg_show = true;//背景色div显示
+          this.alert('提示', '请输入“T>”开头笔记标题或“B>”开头笔记内容关键字！');
           return;
         }
         //清空预览笔记区
@@ -722,14 +736,31 @@
         //在打开分享笔记时，取消选中的笔记本
         $("#book_ul li a.checked").removeClass("checked");
         $("#look_note_body").html("");
-        this.searchNoteFrom.cnNoteTitle=this.searchNote;
+        if(this.searchInfo.indexOf('B>') == 0) {
+          this.searchNoteFrom.cnNoteBody = this.searchInfo.replace('B>','');
+        } else if(this.searchInfo.indexOf('T>') == 0) {
+          this.searchNoteFrom.cnNoteTitle = this.searchInfo.replace('T>','');
+        }
         this.searchNoteFrom.cnUserId=getCookie("userId");
         this.$store.dispatch('ToSearchNotes', this.searchNoteFrom).then(response=>{
           this.changeNoteListDiv(6);
           $("#pc_part_3").hide();//隐藏编辑笔记
           $("#pc_part_5").show();//切换预览笔记
           $("#share_ul").empty();
-          this.searchNotesList = response.data;
+          var searchNotes = response.data;
+          // for (var i = 0; i < searchNotes.length; i++) {
+          //   var replaceSearchInfo = '<strong>'+this.searchInfo.replace('T>','').replace('B>','')+'</strong>';
+          //   console.log("replaceSearchInfo:"+replaceSearchInfo);
+          //   console.log("searchNotes[i].cnNoteTitle_before:"+searchNotes[i].cnNoteTitle);
+          //   console.log("searchNotes[i].cnNoteBody_before:"+searchNotes[i].cnNoteBody);
+          //   searchNotes[i].cnNoteTitle = searchNotes[i].cnNoteTitle.replace(this.searchInfo.replace('T>','').replace('B>',''), replaceSearchInfo);
+          //   searchNotes[i].cnNoteBody = searchNotes[i].cnNoteBody.replace(this.searchInfo.replace('T>','').replace('B>',''), replaceSearchInfo);
+          //   console.log("searchNotes[i].cnNoteTitle_after:"+searchNotes[i].cnNoteTitle);
+          //   console.log("searchNotes[i].cnNoteBody_after:"+searchNotes[i].cnNoteBody);
+          // }
+          this.searchNotesList = searchNotes;
+          this.searchNoteFrom.cnNoteBody = '';
+          this.searchNoteFrom.cnNoteTitle = '';
         }).catch(() => {
         });
       },
@@ -740,7 +771,9 @@
         this.selectNoteId = cnNoteId;
         //预览笔记标题
         $("#noput_note_title").html(this.searchNotesList[index].cnNoteTitle);
+        // var replaceSearchInfo = '<strong>'+this.searchInfo.replace('T>','').replace('B>','')+'</strong>';
         //预览笔记内容
+        // $("#look_note_body").html(this.searchNotesList[index].cnNoteBody.replace(this.searchInfo.replace('T>','').replace('B>',''), replaceSearchInfo));
         $("#look_note_body").html(this.searchNotesList[index].cnNoteBody);
       }
     },

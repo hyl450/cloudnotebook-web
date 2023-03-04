@@ -19,7 +19,7 @@ export function register(userInfo) {
 //add by huangyl 修改密码
 export function updatePassword(data) {
   return request({
-    url: '/admin/updatePassword',
+    url: '/cloudnote/user/updatePwd.do',
     method: 'post',
     data: data
   })

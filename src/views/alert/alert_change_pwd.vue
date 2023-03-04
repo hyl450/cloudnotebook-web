@@ -1,38 +1,68 @@
 <template>
-    <div class="sig sig_in" tabindex='-1' id='zc' v-show="isShow">
-      <dl>
-        <dt>
-          <div class='header'>
-            <h3>修改密码</h3>
-          </div>
-        </dt>
-        <dt></dt>
-        <dt>
-          <div class='letter'>
-            原密码:&nbsp;<input type="text" name="" id="last_password" tabindex='1'/>
-            <div class='warning' id='warning_1'><span>原始密码错误</span></div>
-          </div>
-        </dt>
-        <dt>
-          <div class='letter'>
-            新密码:&nbsp;<input type="password" name="" id="new_password" tabindex='2'/>
-            <div class='warning' id='warning_2'><span>新密码长度过短</span></div>
-          </div>
-        </dt>
-        <dt>
-          <div class='password'>
-            确认新密码:&nbsp;<input type="password" name="" id="final_password" tabindex='3'/>
-            <div class='warning' id='warning_3'><span>密码输入不一致</span></div>
-          </div>
-        </dt>
-        <dt>
-          <div>
-            <input type="button" name="" id="changePassword" value='&nbsp;确&nbsp;定&nbsp;' tabindex='4'/>
-            <input type="button" name="" id="back" value='&nbsp;关&nbsp;闭&nbsp;' tabindex='5' onclick="history.back();"/>
-          </div>
-        </dt>
-      </dl>
-    </div>
+  <div tabindex="-1" role="dialog" class="modal fade in">
+    <!--      <span class="cloudSpan">云笔记注册</span>-->
+    <el-card class="pwdchg-form-layout">
+      <button type="button" class="close" data-dismiss="modal" @click="back" aria-hidden="true">×</button>
+      <h4 class="modal-title" id="modalBasicLabel_7">密码修改</h4>
+      <el-form autoComplete="on"
+               :model="chgPwdForm"
+               :rules="chgPwdRules"
+               ref="registerForm"
+               label-position="left">
+<!--        <el-form-item prop="cnUserName">-->
+<!--          用户名-->
+<!--          <el-input name="cnUserName"-->
+<!--                    type="text"-->
+<!--                    readonly="readonly"-->
+<!--                    v-model="chgPwdForm.cnUserName"-->
+<!--                    autoComplete="on"-->
+<!--                    placeholder="用户名">-->
+<!--              <span slot="prefix">-->
+<!--                <svg-icon icon-class="user" class="color-main"></svg-icon>-->
+<!--              </span>-->
+<!--          </el-input>-->
+<!--        </el-form-item>-->
+        <el-form-item prop="cnUserPassword">
+          原密码
+          <el-input name="cnUserPassword"
+                    :type="pwdType"
+                    v-model="chgPwdForm.cnUserPassword"
+                    autoComplete="on"
+                    placeholder="密码">
+              <span slot="prefix">
+                <svg-icon icon-class="password" class="color-main"></svg-icon>
+              </span>
+            <span slot="suffix" @click="showPwd">
+                <svg-icon icon-class="eye" class="color-main"></svg-icon>
+              </span>
+          </el-input>
+        </el-form-item>
+        <el-form-item prop="confirmPassword">
+          新密码
+          <el-input name="confirmPassword"
+                    :type="pwdType"
+                    v-model="chgPwdForm.confirmPassword"
+                    autoComplete="on"
+                    placeholder="新密码">
+              <span slot="prefix">
+                <svg-icon icon-class="password" class="color-main"></svg-icon>
+              </span>
+            <span slot="suffix" @click="showPwd">
+                <svg-icon icon-class="eye" class="color-main"></svg-icon>
+              </span>
+          </el-input>
+        </el-form-item>
+        <el-form-item style="margin-bottom: 60px;text-align: center">
+          <el-button class="cloudBtn" style="width: 45%" type="primary" :loading="loading" @click.native.prevent="chgPwd">
+            确定
+          </el-button>
+          <el-button class="cloudBtn" style="width: 45%" type="primary" @click.native.prevent="back">
+            返回
+          </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+  </div>
 </template>
 
 <script>
@@ -42,13 +72,65 @@
   export default {
     name: "changePwdAlert",
     data(){
+      const validateConfirmPass = (rule, value, callback) => {
+        if (value.length < 6 || value.length > 20) {
+          callback(new Error('确认密码位数6-20'))
+        } else {
+          callback()
+        }
+      };
       return{
-        isShow:false
+        loading:false,
+        cnUserName:'',
+        pwdType:'password',
+        chgPwdForm: {
+          cnUserId: '',
+          cnUserName: '',
+          cnUserPassword: '',
+          confirmPassword: ''
+        },
+        chgPwdRules: {
+          confirmPassword: [{required: true, trigger: 'blur', validator: validateConfirmPass}]
+        }
+      }
+    },
+    methods:{
+      showPwd(){
+
+      },
+      chgPwd(){
+        this.loading = true;
+        this.$store.dispatch('UpdatePassword', this.chgPwdForm).then(response => {
+          this.loading = false;
+          console.log("response.msg:"+response.msg);
+          if(response.status == "0") {
+            this.$parent.chgPwdDialog = false;
+            this.$parent.alert('提示', '密码修改成功');
+          } else {
+            // this.$parent.chgPwdDialog = false;
+            // alert(response.msg);
+            //TODO
+            this.$parent.alert('提示', response.msg, true);
+          }
+        }).catch(() => {
+          this.loading = false;
+        })
+      },
+      back(){
+        this.$parent.chgPwdDialog=false;
+        this.$parent.opacity_bg_show=false;//背景色隐藏
       }
     }
   }
 </script>
 
 <style scoped>
-
+  .pwdchg-form-layout {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 360px;
+    height: 320px;
+    margin: 140px auto;
+  }
 </style>

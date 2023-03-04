@@ -219,7 +219,7 @@
             this.$store.dispatch('Login', this.loginForm).then(response => {
               if(response.status == "0") {
                 // this.alert('提示', response.msg);
-                setCookie("username",this.loginForm.username,15);
+                setCookie("username",this.loginForm.name,15);
                 setCookie("password",this.loginForm.password,15);
                 this.divVisible=false;
                 this.loading = false;
