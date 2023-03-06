@@ -30,7 +30,8 @@
                     autoComplete="on"
                     placeholder="密码">
               <span slot="prefix">
-                <svg-icon icon-class="password" class="color-main"></svg-icon>
+                <svg-icon icon-class="password" v-show="pwd_svg_icon" class="color-main"></svg-icon>
+                <svg-icon icon-class="password-off" v-show="!pwd_svg_icon" class="color-main"></svg-icon>
               </span>
             <span slot="suffix" @click="showPwd">
                 <svg-icon icon-class="eye" class="color-main"></svg-icon>
@@ -45,7 +46,8 @@
                     autoComplete="on"
                     placeholder="新密码">
               <span slot="prefix">
-                <svg-icon icon-class="password" class="color-main"></svg-icon>
+                <svg-icon icon-class="password" v-show="confirm_pwd_svg_icon" class="color-main"></svg-icon>
+                <svg-icon icon-class="password-off" v-show="!confirm_pwd_svg_icon" class="color-main"></svg-icon>
               </span>
             <span slot="suffix" @click="showConfirmPwd">
                 <svg-icon icon-class="eye" class="color-main"></svg-icon>
@@ -84,6 +86,8 @@
         cnUserName:'',
         pwdType:'password',
         confirmPwdType:'password',
+        pwd_svg_icon: true,
+        confirm_pwd_svg_icon:true,
         chgPwdForm: {
           cnUserId: '',
           cnUserName: '',
@@ -96,18 +100,22 @@
       }
     },
     methods:{
-      showPwd(){
+      showPwd() {
         if (this.pwdType === 'password') {
-          this.pwdType = ''
+          this.pwdType = '';
+          this.pwd_svg_icon = false;
         } else {
-          this.pwdType = 'password'
+          this.pwdType = 'password';
+          this.pwd_svg_icon = true;
         }
       },
       showConfirmPwd () {
         if (this.confirmPwdType === 'password') {
-          this.confirmPwdType = ''
+          this.confirmPwdType = '';
+          this.confirm_pwd_svg_icon = false;
         } else {
-          this.confirmPwdType = 'password'
+          this.confirmPwdType = 'password';
+          this.confirm_pwd_svg_icon = true;
         }
       },
       chgPwd(){

@@ -30,7 +30,8 @@
                       autoComplete="on"
                       placeholder="请输入密码">
               <span slot="prefix">
-                <svg-icon icon-class="password" class="color-main"></svg-icon>
+                <svg-icon icon-class="password" v-show="pwd_svg_icon" class="color-main"></svg-icon>
+                <svg-icon icon-class="password-off" v-show="!pwd_svg_icon" class="color-main"></svg-icon>
               </span>
                   <span slot="suffix" @click="showPwd">
                 <svg-icon icon-class="eye" class="color-main"></svg-icon>
@@ -91,7 +92,8 @@
                       autoComplete="on"
                       placeholder="密码">
               <span slot="prefix">
-                <svg-icon icon-class="password" class="color-main"></svg-icon>
+                <svg-icon icon-class="password" v-show="pwd_svg_icon" class="color-main"></svg-icon>
+                <svg-icon icon-class="password-off" v-show="!pwd_svg_icon" class="color-main"></svg-icon>
               </span>
               <span slot="suffix" @click="showPwd">
                 <svg-icon icon-class="eye" class="color-main"></svg-icon>
@@ -106,7 +108,8 @@
                       autoComplete="on"
                       placeholder="确认密码">
               <span slot="prefix">
-                <svg-icon icon-class="password" class="color-main"></svg-icon>
+                <svg-icon icon-class="password" v-show="confirm_pwd_svg_icon" class="color-main"></svg-icon>
+                <svg-icon icon-class="password-off" v-show="!confirm_pwd_svg_icon" class="color-main"></svg-icon>
               </span>
               <span slot="suffix" @click="showConfirmPwd">
                 <svg-icon icon-class="eye" class="color-main"></svg-icon>
@@ -171,6 +174,8 @@
       return {
         pwdType:'password',
         confirmPwdType:'password',
+        pwd_svg_icon: true,
+        confirm_pwd_svg_icon:true,
         loading:false,
         divVisible:true,
         commonMsgDialog:false,
@@ -200,16 +205,20 @@
     methods: {
       showPwd() {
         if (this.pwdType === 'password') {
-          this.pwdType = ''
+          this.pwdType = '';
+          this.pwd_svg_icon = false;
         } else {
-          this.pwdType = 'password'
+          this.pwdType = 'password';
+          this.pwd_svg_icon = true;
         }
       },
       showConfirmPwd () {
         if (this.confirmPwdType === 'password') {
-          this.confirmPwdType = ''
+          this.confirmPwdType = '';
+          this.confirm_pwd_svg_icon = false;
         } else {
-          this.confirmPwdType = 'password'
+          this.confirmPwdType = 'password';
+          this.confirm_pwd_svg_icon = true;
         }
       },
       alert(caption, msg) {
