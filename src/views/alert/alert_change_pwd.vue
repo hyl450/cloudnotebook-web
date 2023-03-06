@@ -40,14 +40,14 @@
         <el-form-item prop="confirmPassword">
           新密码
           <el-input name="confirmPassword"
-                    :type="pwdType"
+                    :type="confirmPwdType"
                     v-model="chgPwdForm.confirmPassword"
                     autoComplete="on"
                     placeholder="新密码">
               <span slot="prefix">
                 <svg-icon icon-class="password" class="color-main"></svg-icon>
               </span>
-            <span slot="suffix" @click="showPwd">
+            <span slot="suffix" @click="showConfirmPwd">
                 <svg-icon icon-class="eye" class="color-main"></svg-icon>
               </span>
           </el-input>
@@ -83,6 +83,7 @@
         loading:false,
         cnUserName:'',
         pwdType:'password',
+        confirmPwdType:'password',
         chgPwdForm: {
           cnUserId: '',
           cnUserName: '',
@@ -96,7 +97,18 @@
     },
     methods:{
       showPwd(){
-
+        if (this.pwdType === 'password') {
+          this.pwdType = ''
+        } else {
+          this.pwdType = 'password'
+        }
+      },
+      showConfirmPwd () {
+        if (this.confirmPwdType === 'password') {
+          this.confirmPwdType = ''
+        } else {
+          this.confirmPwdType = 'password'
+        }
       },
       chgPwd(){
         this.loading = true;

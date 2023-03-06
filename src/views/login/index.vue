@@ -101,14 +101,14 @@
           <el-form-item prop="confirmPassword">
             确认密码
             <el-input name="confirmPassword"
-                      :type="pwdType"
+                      :type="confirmPwdType"
                       v-model="registerForm.confirmPassword"
                       autoComplete="on"
                       placeholder="确认密码">
               <span slot="prefix">
                 <svg-icon icon-class="password" class="color-main"></svg-icon>
               </span>
-              <span slot="suffix" @click="showPwd">
+              <span slot="suffix" @click="showConfirmPwd">
                 <svg-icon icon-class="eye" class="color-main"></svg-icon>
               </span>
             </el-input>
@@ -170,6 +170,7 @@
       };
       return {
         pwdType:'password',
+        confirmPwdType:'password',
         loading:false,
         divVisible:true,
         commonMsgDialog:false,
@@ -202,6 +203,13 @@
           this.pwdType = ''
         } else {
           this.pwdType = 'password'
+        }
+      },
+      showConfirmPwd () {
+        if (this.confirmPwdType === 'password') {
+          this.confirmPwdType = ''
+        } else {
+          this.confirmPwdType = 'password'
         }
       },
       alert(caption, msg) {
