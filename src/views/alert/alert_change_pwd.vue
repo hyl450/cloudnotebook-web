@@ -77,6 +77,8 @@
       const validateConfirmPass = (rule, value, callback) => {
         if (value.length < 6 || value.length > 20) {
           callback(new Error('确认密码位数6-20'))
+        } else if (this.chgPwdForm.cnUserPassword == this.chgPwdForm.confirmPassword) {
+          callback(new Error('新密码与原密码相同，请重新输入新密码'))
         } else {
           callback()
         }
