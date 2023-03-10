@@ -1,7 +1,7 @@
 import { login, logout, getInfo,register,updatePassword} from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import {setSupport,getSupport,setCookie,getCookie} from '@/utils/support'
-import {loadUserBooks,loadBookNotes,loadNote,newbook,deleteBook,addNote,saveNote,deleteBackNote,recyclenote,loadbacknotes,replayNote,upNoteTypeId,loadLikeNotes,toSearchNotes} from '@/api/notebook'
+import {loadUserBooks,loadBookNotes,loadNote,newbook,deleteBook,addNote,saveNote,deleteBackNote,recyclenote,loadbacknotes,replayNote,upNoteTypeId,loadLikeNotes,toSearchNotes,moveNote,shareNote,loadShareNotes,noShareNote} from '@/api/notebook'
 
 const user = {
   state: {
@@ -226,6 +226,57 @@ const user = {
     ToSearchNotes({commit}, noteInfo) {
       return new Promise((resolve, reject) => {
         toSearchNotes(noteInfo).then(response => {
+          const data = response.data
+          resolve(response)
+          console.log(data);
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    //移动笔记
+    MoveNote({commit}, noteInfo) {
+      return new Promise((resolve, reject) => {
+        moveNote(noteInfo).then(response => {
+          const data = response.data
+          resolve(response)
+          console.log(data);
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    //分享笔记
+    ShareNote({commit}, noteInfo) {
+      return new Promise((resolve, reject) => {
+        shareNote(noteInfo).then(response => {
+          const data = response.data
+          resolve(response)
+          console.log(data);
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    //返回所有人分享的笔记
+    LoadShareNotes({commit}, cnUserId) {
+      return new Promise((resolve, reject) => {
+        loadShareNotes(cnUserId).then(response => {
+          const data = response.data
+          resolve(response)
+          console.log(data);
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    //取消分享笔记
+    NoShareNote({commit}, noteInfo) {
+      return new Promise((resolve, reject) => {
+        noShareNote(noteInfo).then(response => {
           const data = response.data
           resolve(response)
           console.log(data);

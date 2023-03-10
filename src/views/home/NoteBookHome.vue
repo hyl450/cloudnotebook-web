@@ -39,7 +39,7 @@
       </form>
       <ul class="hidden-xs header-menu pull-right">
         <li>
-          <a href="activity.html" target='_blank' title="笔记活动">活动</a>
+          <a target='_blank' title="笔记活动" @click="active">活动</a>
         </li>
       </ul>
     </header>
@@ -75,8 +75,8 @@
         </aside>
         <div class="row clear_margin">
           <div class="col-xs-4 click" id='rollback_button' title='回收站' @click="rollBack"><i class='fa fa-trash-o' style='font-size:20px;line-height:31px;'></i></div>
-          <div class="col-xs-4 click" id='like_button' title='收藏笔记本' @click="likeNoteBook"><i class='fa fa-star' style='font-size:20px;line-height:31px;'></i></div>
-          <div class="col-xs-4 click" id='action_button' title='参加活动笔记'><i class='fa fa-users' style='font-size:20px;line-height:30px;'></i></div>
+          <div class="col-xs-4 click" id='like_button' title='收藏笔记' @click="likeNoteBook"><i class='fa fa-star' style='font-size:20px;line-height:31px;'></i></div>
+          <div class="col-xs-4 click" id='action_button' title='分享笔记' @click="shareNotes"><i class='fa fa-users' style='font-size:20px;line-height:30px;'></i></div>
         </div>
       </div>
       <!-- 全部笔记本 -->
@@ -104,8 +104,8 @@
                     </a>
                     <div class="note_menu" tabindex='-1' v-show="noteMenuShow">
                       <dl>
-                        <dt><button type="button" class="btn btn-default btn-xs btn_move" title='移动至...'><i class="fa fa-random"></i></button></dt>
-                        <dt><button type="button" class="btn btn-default btn-xs btn_share" title='分享'><i class="fa fa-sitemap"></i></button></dt>
+                        <dt><button type="button" class="btn btn-default btn-xs btn_move" title='移动至...' @click="alertMoveNote"><i class="fa fa-random"></i></button></dt>
+                        <dt><button type="button" class="btn btn-default btn-xs btn_share" title='分享' @click="shareNote"><i class="fa fa-sitemap"></i></button></dt>
                         <dt><button type="button" class="btn btn-default btn-xs btn_delete" title='删除' @click="delNote"><i class="fa fa-times"></i></button></dt>
                       </dl>
                     </div>
@@ -190,24 +190,31 @@
         </aside>
       </div>
       <!-- 收藏笔记列表 -->
-      <!-- 参加活动的笔记列表 -->
+      <!-- 分享的笔记列表 -->
       <div class="col-xs-3" style='padding:0;display:none;' id='pc_part_8'>
         <div class="pc_top_second">
-          <h3>参加活动的笔记</h3>
+          <h3>分享的笔记</h3>
         </div>
         <aside class="side-right" id='eighth_side_right'>
           <div class="module" data-toggle="niceScroll">
             <div class="chat-contact">
               <div class="contact-body">
                 <ul class="contacts-list">
-                  <!--li class="offline"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i> 样式用例（点击无效）</a></li-->
+                  <li class="offline" v-for="(shareNote, index) in shareNotesList" :key="index">
+                    <a v-bind:class="{checked:index==sharenotecurrent}" @click="loadShareNote(index)">
+                      <i class="fa fa-share" title="online" rel="tooltip-bottom"></i>{{shareNote.cnShareTitle}}
+                      <button type="button" v-show="shareNote.isPersonShare == 'Y'" class="btn btn-default btn-xs btn_position btn_delete" @click="noShareNoteBtn(index)">
+                        <i class="fa fa-times"></i>
+                      </button>
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>
           </div>
         </aside>
       </div>
-      <!-- 参加活动的笔记列表 -->
+      <!-- 分享的笔记列表 -->
       <!-- 编辑笔记 -->
       <div class="col-sm-7" id='pc_part_3' style="height:486px;">
         <!-- side-right -->
@@ -279,6 +286,8 @@
     <deleteRollbackAlert title="展示删除到回收站弹框" v-if="rollbackDialog" ref="deleteRollbackAlert"/>
     <deleteNoteAlert title="展示彻底删除回收站笔记弹框" v-if="recycleNoteDialog" ref="deleteNoteAlert"/>
     <replayNoteAlert title="展示回收站笔记恢复弹框" v-if="replayNoteDialog" ref="replayNoteAlert"/>
+    <moveNoteAlert title="展示移动笔记弹框" v-if="moveNoteDialog" ref="moveNoteAlert"/>
+    <noShareNoteAlert title="展示取消分享笔记弹框" v-if="noShareNoteDialog" ref="noShareNoteAlert"/>
     <footer>
       <p>&copy; 2023 vue studying</p>
       <div style='position:absolute;top:5PX;height:30px;right:20px;line-height:26px;border:1px solid #0E7D76;display:none;background:#fff'>
@@ -304,6 +313,8 @@
   import deleteNoteAlert from "../alert/alert_delete_note"
   import replayNoteAlert from "../alert/alert_replay_note"
   import changePwdAlert from "../alert/alert_change_pwd"
+  import moveNoteAlert from "../alert/alert_move_note"
+  import noShareNoteAlert from "../alert/alert_delete_sharenote"
 
   import { mapGetters } from 'vuex'
 
@@ -317,7 +328,9 @@
       deleteRollbackAlert,
       deleteNoteAlert,
       replayNoteAlert,
-      changePwdAlert
+      changePwdAlert,
+      moveNoteAlert,
+      noShareNoteAlert
     },
     computed: {
       ...mapGetters([
@@ -334,6 +347,7 @@
         backbookcurrent:-1,
         likenotecurrent:-1,
         searchnotecurrent:-1,
+        sharenotecurrent:-1,
         cnNotebookList:[],
         cnBookNotesList:[],
         //回收站笔记
@@ -342,6 +356,7 @@
         likeNotesList:[],
         //搜索笔记列表
         searchNotesList:[],
+        shareNotesList:[],
         //回收站预览笔记标题
         noputNoteTitle:'',
         //回收站预览笔记内容
@@ -353,6 +368,7 @@
         inputNoteTitle:'',
         //当前选中的笔记NoteId
         selectNoteId:'',
+        selectNoteBookId:'',
         bookOpenDialog:false,
         opacity_bg_show:false,
         commonMsgDialog:false,
@@ -361,6 +377,10 @@
         rollbackDialog:false,
         recycleNoteDialog:false,
         replayNoteDialog:false,
+        //移动笔记弹框标识
+        moveNoteDialog:false,
+        //取消分享笔记
+        noShareNoteDialog:false,
         chgPwdDialog:false,
         //笔记菜单
         noteMenuShow:false,
@@ -381,6 +401,9 @@
           cnNoteTitle:'',
           cnUserId:'',
           cnNoteBody:''
+        },
+        noteForm: {
+          cnNoteId:''
         }
       };
     },
@@ -390,6 +413,10 @@
     watch: {},
     //方法集合
     methods: {
+      active() {
+        this.opacity_bg_show = true;//背景色div显示
+        this.alert("警告", "暂无活动，敬请期待！");
+      },
       init() {
         this.editor=UM.getEditor('myEditor');
         this.set_height();
@@ -429,6 +456,7 @@
         this.notecurrent = index;
         var noteBookId = this.cnNotebookList[index].cnNotebookId;
         setCookie("cnNotebookId", noteBookId);
+        this.selectNoteBookId = noteBookId;
         //切换笔记本时，编辑器容易消失
         if(this.editor == null || this.editor == undefined) {
           this.editor=UM.getEditor('myEditor');
@@ -436,10 +464,6 @@
         //将当前笔记本li设置为选中状态
         //去除笔记选中样式
         $("#note_ul li a").removeClass("checked");
-
-        // TODO
-        // $("#pc_part_3").show();//切换编辑笔记
-        // $("#pc_part_5").hide();//隐藏预览笔记
 
         this.$store.dispatch('LoadBookNotes', noteBookId).then(response => {
           this.cnBookNotesList = response.data;
@@ -534,6 +558,64 @@
           this.alert('提示', '保存笔记成功');
         }).catch(() => {
         });
+      },
+      //移动笔记
+      alertMoveNote(){
+        this.moveNoteDialog = true;
+        this.opacity_bg_show = true;//背景色div显示
+        console.log("alertMoveNote_selectNoteBookId:"+this.selectNoteBookId);
+        this.$nextTick(() => {
+          this.$refs.moveNoteAlert.moveNoteFrom.cnNoteId=this.selectNoteId;
+          this.$refs.moveNoteAlert.moveNotebookList=this.cnNotebookList;
+          this.$refs.moveNoteAlert.selectNoteBookId=this.selectNoteBookId;
+        })
+      },
+      //分享笔记
+      shareNote(){
+        this.opacity_bg_show = true;//背景色div显示
+        this.noteForm.cnNoteId = this.selectNoteId;
+        this.$store.dispatch('ShareNote', this.noteForm).then(response => {
+          this.alert('分享笔记', response.msg);
+        }).catch(() => {
+          this.alert('警告', '分享笔记失败');
+        })
+      },
+      //取消分享笔记
+      noShareNoteBtn(index) {
+        this.sharenotecurrent = index;
+        var cnNoteId = this.shareNotesList[index].cnNoteId;
+        this.selectNoteId = cnNoteId;
+        setCookie("cnNoteId", cnNoteId);
+        this.opacity_bg_show = true;//背景色div显示
+        this.noShareNoteDialog = true;
+        this.$nextTick(() => {
+          this.$refs.noShareNoteAlert.delShareNoteFrom.cnShareId=this.shareNotesList[index].cnShareId;
+        })
+      },
+      //打开分享笔记列表
+      shareNotes() {
+        $("#noput_note_title").html("");
+        $("#look_note_body").html("");
+        $("#book_ul a").removeClass("checked");
+        this.changeNoteListDiv(8);
+        $("#pc_part_5").show();//切换预览笔记
+        $("#pc_part_3").hide();//隐藏编辑笔记
+        this.$store.dispatch('LoadShareNotes', getCookie("userId")).then(response => {
+          this.shareNotesList = response.data;
+        }).catch(() => {
+          this.alert('警告', '打开分享笔记失败');
+        })
+      },
+      //打开分享的笔记
+      loadShareNote(index) {
+        this.sharenotecurrent = index;
+        var cnNoteId = this.shareNotesList[index].cnNoteId;
+        this.selectNoteId = cnNoteId;
+        setCookie("cnNoteId", cnNoteId);
+        //预览笔记标题
+        $("#noput_note_title").html(this.shareNotesList[index].cnShareTitle);
+        //预览笔记内容
+        $("#look_note_body").html(this.shareNotesList[index].cnShareBody);
       },
       //删除笔记到回收站弹框
       delNote(){
@@ -687,12 +769,15 @@
         this.likeNoteFrom.cnNoteTypeId = (cnNoteTypeId == "129" ? "1" : "129");
         this.$store.dispatch('UpNoteTypeId', this.likeNoteFrom).then(()=>{
           //重新加载笔记
-          this.$store.dispatch('LoadBookNotes', getCookie("cnNotebookId")).then(response => {
-            this.cnBookNotesList = response.data;
-          }).catch(() => {
-          })
+          this.reloadBookNotes();
         }).catch(() => {
         });
+      },
+      reloadBookNotes() {
+        this.$store.dispatch('LoadBookNotes', getCookie("cnNotebookId")).then(response => {
+          this.cnBookNotesList = response.data;
+        }).catch(() => {
+        })
       },
       loadLikeNote(index){
         this.likenotecurrent = index;

@@ -111,6 +111,37 @@ export function toSearchNotes(noteInfo) {
     data:noteInfo
   })
 }
+export function moveNote(noteInfo) {
+  return request({
+    url:'/notebook/moveNote.do',
+    method:'post',
+    data:noteInfo
+  })
+}
+export function shareNote(noteInfo) {
+  return request({
+    url:'/notebook/shareNote.do',
+    method:'post',
+    data:noteInfo
+  })
+}
+export function noShareNote(noteInfo) {
+  return request({
+    url:'/notebook/delShareNote.do',
+    method:'post',
+    data:noteInfo
+  })
+}
+export function loadShareNotes(cnUserId) {
+  return request({
+    url:'/notebook/loadShareNotes.do',
+    method:'post',
+    data: {
+      cnUserId
+    }
+  })
+}
+
 
 
 
