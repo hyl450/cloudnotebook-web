@@ -141,6 +141,13 @@ export function loadShareNotes(cnUserId) {
     }
   })
 }
+export function renameBook(notebook) {
+  return request({
+    url:'/notebook/renameBook.do',
+    method:'post',
+    data: notebook
+  })
+}
 
 
 

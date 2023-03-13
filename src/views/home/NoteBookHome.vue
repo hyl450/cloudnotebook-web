@@ -63,10 +63,17 @@
                     <a @click="loadBookNotes(index)" v-bind:class="{ checked:index==notecurrent}">
                       <i class="fa fa-book" title="online" rel="tooltip-bottom"></i>
                       {{note.cnNotebookName}}
-                      <button type="button" class="btn btn-default btn_position btn-xs btn_delete del_book" title="删除" @click="alertRecycleBook(index)">
-                        <i class="fa fa-times"></i>
+                      <button type="button" class="btn btn-default btn-xs btn_position book_btn_slide_down"
+                              @click="bookBtnSlideDown">
+                        <i class="fa fa-chevron-down"></i>
                       </button>
                     </a>
+                    <div class="book_note_menu" tabindex='-1' v-show="bookMenuShow">
+                      <dl>
+                        <dt><button type="button" class="btn btn-default btn-xs btn_share" title='重命名' @click="reNameBook(index)"><i class="fa fa-inbox"></i></button></dt>
+                        <dt><button type="button" class="btn btn-default btn-xs btn_delete del_book" title='删除' @click="alertRecycleBook(index)"><i class="fa fa-times"></i></button></dt>
+                      </dl>
+                    </div>
                   </li>
                 </ul>
               </div>
@@ -288,6 +295,7 @@
     <replayNoteAlert title="展示回收站笔记恢复弹框" v-if="replayNoteDialog" ref="replayNoteAlert"/>
     <moveNoteAlert title="展示移动笔记弹框" v-if="moveNoteDialog" ref="moveNoteAlert"/>
     <noShareNoteAlert title="展示取消分享笔记弹框" v-if="noShareNoteDialog" ref="noShareNoteAlert"/>
+    <bookRenameAlert title="展示笔记本重命名弹框" v-if="bookRenameDialog" ref="bookRenameAlert"/>
     <footer>
       <p>&copy; 2023 vue studying</p>
       <div style='position:absolute;top:5PX;height:30px;right:20px;line-height:26px;border:1px solid #0E7D76;display:none;background:#fff'>
@@ -315,6 +323,7 @@
   import changePwdAlert from "../alert/alert_change_pwd"
   import moveNoteAlert from "../alert/alert_move_note"
   import noShareNoteAlert from "../alert/alert_delete_sharenote"
+  import bookRenameAlert from "../alert/alert_book_rename"
 
   import { mapGetters } from 'vuex'
 
@@ -330,7 +339,8 @@
       replayNoteAlert,
       changePwdAlert,
       moveNoteAlert,
-      noShareNoteAlert
+      noShareNoteAlert,
+      bookRenameAlert
     },
     computed: {
       ...mapGetters([
@@ -381,9 +391,12 @@
         moveNoteDialog:false,
         //取消分享笔记
         noShareNoteDialog:false,
+        //笔记本重命名
+        bookRenameDialog:false,
         chgPwdDialog:false,
         //笔记菜单
         noteMenuShow:false,
+        bookMenuShow:false,
         userBtnShow:false,
         saveNoteFrom:{
           cnNoteId:'',
@@ -683,6 +696,8 @@
         $("#note_ul").on("click",".btn_slide_down",function(){//e
           //将所有菜单隐藏
           $("#note_ul .note_menu").hide();
+          //将所有菜单隐藏
+          $("#book_ul .book_note_menu").hide();
           //显示点击的笔记的菜单div
           var $li = $(this).parents("li");
           var $menu = $li.find(".note_menu");
@@ -703,6 +718,46 @@
         //点击body任意位置，隐藏弹出来的菜单
         $("body").click(function(){
           $("#note_ul .note_menu").hide();
+          $("#note_ul .book_note_menu").hide();
+        });
+      },
+      bookBtnSlideDown(){
+        $("#book_ul").on("click",".book_btn_slide_down",function(){//e
+          //将所有菜单隐藏
+          $("#note_ul .note_menu").hide();
+          //将所有菜单隐藏
+          $("#book_ul .book_note_menu").hide();
+          //显示点击的笔记的菜单div
+          var $li = $(this).parents("li");
+          var $menu = $li.find(".book_note_menu");
+          $menu.slideDown(500);//显示菜单
+          //设置当前li选中模式
+          $("#book_ul li a").removeClass("checked");
+          $li.find("a").addClass("checked");
+          return false;
+        });
+        //当鼠标在div菜单移动时保存显示状态
+        $("#book_ul").on("mouseover",".book_note_menu",function(){
+          $(this).show();
+        });
+        //当鼠标在div菜单移开时将菜单隐藏
+        $("#book_ul").on("mouseout",".book_note_menu",function(){
+          $(this).hide();
+        });
+        //点击body任意位置，隐藏弹出来的菜单
+        $("body").click(function(){
+          $("#note_ul .note_menu").hide();
+          $("#book_ul .book_note_menu").hide();
+        });
+      },
+      //笔记本重命名
+      reNameBook(index) {
+        this.opacity_bg_show = true;//背景色div显示
+        this.bookRenameDialog = true;
+        this.notecurrent = index;
+        var noteBookId = this.cnNotebookList[index].cnNotebookId;
+        this.$nextTick(() => {
+          this.$refs.bookRenameAlert.renameBookForm.cnNotebookId = noteBookId;
         });
       },
       dropDownBtn(){

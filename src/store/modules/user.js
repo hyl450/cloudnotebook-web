@@ -1,7 +1,7 @@
 import { login, logout, getInfo,register,updatePassword} from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import {setSupport,getSupport,setCookie,getCookie} from '@/utils/support'
-import {loadUserBooks,loadBookNotes,loadNote,newbook,deleteBook,addNote,saveNote,deleteBackNote,recyclenote,loadbacknotes,replayNote,upNoteTypeId,loadLikeNotes,toSearchNotes,moveNote,shareNote,loadShareNotes,noShareNote} from '@/api/notebook'
+import {loadUserBooks,loadBookNotes,loadNote,newbook,deleteBook,addNote,saveNote,deleteBackNote,recyclenote,loadbacknotes,replayNote,upNoteTypeId,loadLikeNotes,toSearchNotes,moveNote,shareNote,loadShareNotes,noShareNote,renameBook} from '@/api/notebook'
 
 const user = {
   state: {
@@ -277,6 +277,19 @@ const user = {
     NoShareNote({commit}, noteInfo) {
       return new Promise((resolve, reject) => {
         noShareNote(noteInfo).then(response => {
+          const data = response.data
+          resolve(response)
+          console.log(data);
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    //笔记本重命名
+    RenameBook({commit}, notebook) {
+      return new Promise((resolve, reject) => {
+        renameBook(notebook).then(response => {
           const data = response.data
           resolve(response)
           console.log(data);
