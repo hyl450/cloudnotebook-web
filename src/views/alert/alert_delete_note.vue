@@ -38,10 +38,7 @@
           //清空编辑器
           this.$parent.clearUeditor();
           //重新加载笔记
-          this.$store.dispatch('LoadBookNotes', getCookie("cnNotebookId")).then(response => {
-            this.$parent.cnBookNotesList = response.data;
-          }).catch(() => {
-          })
+          this.$parent.reloadBookNotes();
           this.$parent.alert('提示', '删除笔记到回收站成功');
           this.$parent.recycleNoteDialog=false;
         }).catch(() => {

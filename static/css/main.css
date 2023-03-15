@@ -11176,6 +11176,12 @@ body.gallery-expand {
 .btn_plus{
 	padding:2px 5px 1px;
 }
+.btn_book_sort{
+  padding:2px 5px 1px;
+}
+.btn_note_sort{
+  padding:2px 5px 1px;
+}
 .btn_join,.btn_esc{
 	padding:0 20px;
 	visibility:hidden;
@@ -11203,6 +11209,14 @@ body.gallery-expand {
 	top:4px;
 	color:#0E7D76;
 }
+/*add by huangyl 排序按钮位置*/
+#book_sort,#note_sort{
+  position:absolute;
+  right:35px;
+  top:4px;
+  color:#0E7D76;
+}
+
 .click{
 	background:#72C5BF;
 	cursor:pointer;

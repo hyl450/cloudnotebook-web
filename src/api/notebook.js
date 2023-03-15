@@ -1,22 +1,18 @@
 import request from '@/utils/request'
 
-export function loadUserBooks(cnUserId) {
+export function loadUserBooks(loginInInfo) {
   return request({
     url: '/notebook/loadbooks.do',
     method: 'post',
-    data: {
-      cnUserId
-    }
+    data: loginInInfo
   })
 }
 
-export function loadBookNotes(cnNotebookId) {
+export function loadBookNotes(noteInfo) {
   return request({
     url: '/notebook/loadnotes.do',
     method: 'post',
-    data: {
-      cnNotebookId
-    }
+    data: noteInfo
   })
 }
 export function loadNote(cnNoteId) {

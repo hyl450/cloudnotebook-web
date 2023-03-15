@@ -60,9 +60,9 @@ const user = {
       })
     },
 
-    LoadUserBooks({commit}, userId) {
+    LoadUserBooks({commit}, loginInInfo) {
       return new Promise((resolve, reject) => {
-        loadUserBooks(userId).then(response => {
+        loadUserBooks(loginInInfo).then(response => {
           const data = response.data
           resolve(response)
           console.log(data);
@@ -71,9 +71,9 @@ const user = {
         })
       })
     },
-    LoadBookNotes({commit}, noteBookId) {
+    LoadBookNotes({commit}, noteInfo) {
       return new Promise((resolve, reject) => {
-        loadBookNotes(noteBookId).then(response => {
+        loadBookNotes(noteInfo).then(response => {
           const data = response.data
           resolve(response)
           console.log(data);

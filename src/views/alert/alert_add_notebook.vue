@@ -40,10 +40,7 @@
       addNote() {
         this.$store.dispatch('AddNote', this.newNoteFrom).then(() => {
           //重新加载笔记
-          this.$store.dispatch('LoadBookNotes', getCookie("cnNotebookId")).then(response => {
-            this.$parent.cnBookNotesList = response.data;
-          }).catch(() => {
-          })
+          this.$parent.reloadBookNotes();
           this.$parent.alert('提示', '笔记创建成功');
           this.$parent.newNoteDialog = false;
           // this.$parent.inputNoteTitle = this.newNoteFrom.cnNoteTitle;

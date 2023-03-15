@@ -52,6 +52,12 @@
         <!-- side-right -->
         <div class="pc_top_first">
           <h3>全部笔记本</h3>
+<!--          <button type="button" class="btn btn-default btn-xs btn_book_sort" id='book_sort'>{{ bookSortFlag }}</button>-->
+          <select class="btn_book_sort" id="book_sort" @change="noteBookSort">
+            <option value="none">排序</option>
+            <option value="1">升序</option>
+            <option value="2">降序</option>
+          </select>
           <button type="button" class="btn btn-default btn-xs btn_plus" id='add_notebook' @click="add_notebook()"><i class="fa fa-plus"></i></button>
         </div>
         <aside class="side-right" id='first_side_right'>
@@ -59,7 +65,7 @@
             <div class="chat-contact">
               <div class="contact-body">
                 <ul id="book_ul" class="contacts-list">
-                  <li v-for="(note, index) in cnNotebookList" :key="index" class="online">
+                  <li v-for="(note, index) in cnNotebookList" :key="index" class="online" :title=note.cnNotebookCreatetimeFormat>
                     <a @click="loadBookNotes(index)" v-bind:class="{ checked:index==notecurrent}">
                       <i class="fa fa-book" title="online" rel="tooltip-bottom"></i>
                       {{note.cnNotebookName}}
@@ -91,6 +97,11 @@
       <div class="col-xs-3" style='padding:0;' id='pc_part_2'>
         <div class="pc_top_second" id='notebookId'>
           <h3>全部笔记</h3>
+          <select class="btn_note_sort" id="note_sort" @change="noteSort">
+            <option value="none">排序</option>
+            <option value="1">升序</option>
+            <option value="2">降序</option>
+          </select>
           <button type="button" class="btn btn-default btn-xs btn_plus" id='add_note' @click="alertNewNote"><i class="fa fa-plus"></i></button>
         </div>
         <aside class="side-right" id='second_side_right'>
@@ -98,7 +109,7 @@
             <div class="chat-contact">
               <div class="contact-body">
                 <ul id="note_ul" class="contacts-list">
-                  <li class="online" v-for="(book,index) in cnBookNotesList" :key="index">
+                  <li class="online" v-for="(book,index) in cnBookNotesList" :key="index" :title=book.cnNoteCreateTimeFormat>
                     <a v-bind:class="{checked:index==bookcurrent}" @click="loadNote(index)" >
                       <i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i>
                       {{book.cnNoteTitle}}
@@ -398,6 +409,8 @@
         noteMenuShow:false,
         bookMenuShow:false,
         userBtnShow:false,
+        bookOrderByClause:'',
+        noteOrderByClause:'',
         saveNoteFrom:{
           cnNoteId:'',
           cnNoteTitle:'',
@@ -405,6 +418,14 @@
         },
         loginOutFrom:{
           cnUserId:''
+        },
+        loginInFrom:{
+          cnUserId:'',
+          orderByClause:''
+        },
+        notesForm:{
+          cnNotebookId:'',
+          orderByClause:''
         },
         likeNoteFrom:{
           cnNoteId:'',
@@ -452,9 +473,32 @@
         this.get_dom('third_side_right').style.height=(pc_height-15)+'px';
         this.get_dom('fifth_side_right').style.height=(pc_height-15)+'px';
       },
+      //笔记本排序功能
+      noteBookSort(){
+        if($("#book_sort").val() == 'none') {
+          this.bookOrderByClause='';
+        } else if($("#book_sort").val() == '1') {//升序
+          this.bookOrderByClause = 'cn_notebook_createtime';
+        } else if($("#book_sort").val() == '2') {//降序
+          this.bookOrderByClause = 'cn_notebook_createtime desc';
+        }
+        this.loadUserBooks();
+      },
+      noteSort(){
+        if($("#note_sort").val() == 'none') {
+          this.noteOrderByClause='';
+        } else if($("#note_sort").val() == '1') {//升序
+          this.noteOrderByClause = 'cn_note_create_time';
+        } else if($("#note_sort").val() == '2') {//降序
+          this.noteOrderByClause = 'cn_note_create_time desc';
+        }
+        this.reloadBookNotes();
+      },
       //加载用户笔记本列表
       loadUserBooks() {
-        this.$store.dispatch('LoadUserBooks', getCookie("userId")).then(response => {
+        this.loginInFrom.cnUserId = getCookie("userId");
+        this.loginInFrom.orderByClause = this.bookOrderByClause;
+        this.$store.dispatch('LoadUserBooks', this.loginInFrom).then(response => {
           this.cnNotebookList = response.data;
         }).catch(() => {
         })
@@ -478,7 +522,9 @@
         //去除笔记选中样式
         $("#note_ul li a").removeClass("checked");
 
-        this.$store.dispatch('LoadBookNotes', noteBookId).then(response => {
+        this.notesForm.cnNotebookId = noteBookId;
+        this.notesForm.orderByClause = this.noteOrderByClause;
+        this.$store.dispatch('LoadBookNotes', this.notesForm).then(response => {
           this.cnBookNotesList = response.data;
         }).catch(() => {
         })
@@ -829,7 +875,9 @@
         });
       },
       reloadBookNotes() {
-        this.$store.dispatch('LoadBookNotes', getCookie("cnNotebookId")).then(response => {
+        this.notesForm.cnNotebookId = this.selectNoteBookId;
+        this.notesForm.orderByClause = this.noteOrderByClause;
+        this.$store.dispatch('LoadBookNotes', this.notesForm).then(response => {
           this.cnBookNotesList = response.data;
         }).catch(() => {
         })
