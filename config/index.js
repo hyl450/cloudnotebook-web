@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/cloudnote-admin': {//代理标识，一般是每个接口前的相同部分
-        target: 'http://192.168.150.128:10008', // 这里写的是访问接口的域名和端口号
+        target: 'http://192.168.91.130:10008', // 这里写的是访问接口的域名和端口号
         changeOrigin: true, // 允许跨域请求
         pathRewrite: { // 重写路径，替换请求地址中的指定路径
           '^/cloudnote-admin': '/cloudnote-admin'
@@ -21,8 +21,8 @@ module.exports = {
     },
 
     // Various Dev Server settings
-    // host: '192.168.150.128', // can be overwritten by process.env.HOST
-    host: 'localhost', // can be overwritten by process.env.HOST
+    host: '192.168.91.130', // can be overwritten by process.env.HOST
+    // host: 'localhost', // can be overwritten by process.env.HOST
     port: 8089, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
