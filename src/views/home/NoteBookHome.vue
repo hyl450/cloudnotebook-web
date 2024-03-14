@@ -614,7 +614,7 @@
         this.saveNoteFrom.cnNoteBody=noteBody;
         this.$store.dispatch('SaveNote',this.saveNoteFrom).then(response =>{
           this.opacity_bg_show = true;//背景色div显示
-          //重新加载笔记
+          //修改笔记时，笔记标题修改，刷新笔记本下对应的笔记标题名称，重新加载笔记
           this.reloadBookNotes();
           this.alert('提示', '保存笔记成功');
         }).catch(() => {
