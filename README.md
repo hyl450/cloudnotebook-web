@@ -7,10 +7,14 @@ cloudnotebook-web云笔记前台vue项目
 # 安装依赖
   npm install
 # 编译打包
-  #####1.config/prod.env.js中修改为BASE_API: '"http://192.168.150.128:8089/cloudnote-admin"'
-  #####2.config/dev.env.js中修改为BASE_API: '"http://192.168.150.128:8089/cloudnote-admin"'
-  #####3.config/index.js中host修改部署主机IP192.168.150.128
-  npm run build
+
+#####1.config/prod.env.js中修改为BASE_API: '"http://192.168.150.128:8089/cloudnote-admin"'
+
+#####2.config/dev.env.js中修改为BASE_API: '"http://192.168.150.128:8089/cloudnote-admin"'
+
+#####3.config/index.js中host修改部署主机IP192.168.150.128
+
+**npm run build**
 # 启动项目
   npm run dev
 
